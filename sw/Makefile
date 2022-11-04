@@ -1,6 +1,6 @@
 CFLAGS+=-g
-TARGET=debugread
-SOURCE=debugread.c
+TARGET=dma-test
+SOURCE=dma-test.cc
 DEBUG_PORT?=10024
 QEMU_HOSTNAME?=qemu
 QEMU_DEBUG_PORT_FILE:=$(HOME)/.qemu-dbg-port
