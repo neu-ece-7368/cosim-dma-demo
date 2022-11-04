@@ -14,7 +14,7 @@ ifeq ($(OECORE_SDK_VERSION),)
 endif
 
 $(TARGET): $(SOURCE)
-		$(CC) $(CFLAGS) -o $@ $^
+		$(CXX) $(CFLAGS) -o $@ $^
 
 all: $(TARGET)
 

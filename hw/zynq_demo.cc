@@ -42,7 +42,7 @@ using namespace std;
 #include "trace.h"
 #include "iconnect.h"
 #include "debugdev.h"
-#include "vector_processor.h"
+#include "demo-dma.h"
 #include "soc/xilinx/zynq/xilinx-zynq.h"
 
 #define NR_MASTERS 1
@@ -53,8 +53,9 @@ SC_MODULE(Top)
 	iconnect<NR_MASTERS, NR_DEVICES> bus;
 	xilinx_zynq zynq;
 	debugdev debug;
-	vector_processor vecProc;
+	demodma dma;
 	sc_signal<bool> rst;
+	//iconnect<1,1> ocmbus;
 
 	SC_HAS_PROCESS(Top);
 
@@ -69,24 +70,42 @@ SC_MODULE(Top)
 	Top(sc_module_name name, const char *sk_descr, sc_time quantum) : bus("bus"),
 																	  zynq("zynq", sk_descr),
 																	  debug("debug"),
-																	  vecProc("vecProc"),
-																	  rst("rst")
+																	  dma("dma"),
+																	  rst("rst") //,ocmbus("ocmbus")
 	{
-		m_qk.set_global_quantum(quantum);
+		m_qk.set_global_quantum(quantum); // quantum keeper 
 
+		// connect reset wire
 		zynq.rst(rst);
 
+		// map debug target (slave) device with base address 
 		bus.memmap(0x48000000ULL, 0x100 - 1,
 				   ADDRMODE_RELATIVE, -1, debug.socket);
 
-		bus.memmap(0x49000000ULL, 0x100 - 1,
-				   ADDRMODE_RELATIVE, -1, vecProc.socket);
+		// map DMA target (slave) device with base address 
+		bus.memmap(0x48001000ULL, 0x100 - 1,
+				   ADDRMODE_RELATIVE, -1, dma.tgt_socket);
 
+		// connect ZynqPS general AXI port as the initiator for all transactions on the internal bus
 		zynq.m_axi_gp[0]->bind(*(bus.t_sk[0]));
+
+		// connnecting the DMA's target port should go directly to the 
+		// s_axi_hp port. 
+		dma.init_socket.bind(*(zynq.s_axi_hp[0]));
+
+		// Could not get the above to compile, so I just use another 
+		// bus ocmbus as an intermediary. 
+		// connect the DMA as a target 1 to the ocm bus 
+		//dma.init_socket.bind(*(ocmbus.t_sk[0]));
+
+		// make custom interconnect as this port is not on the regular bus (coming from CPU)
+		/* access to OCM */
+		// this can access whole range from whin PS
+		//ocmbus.memmap(0x0LL, 0xFFFFFFFFULL - 1, ADDRMODE_RELATIVE, -1, *(zynq.s_axi_hp[0]));
 
 		/* Connect the PL irqs to the irq_pl_to_ps wires.  */
 		debug.irq(zynq.pl2ps_irq[0]);
-		vecProc.irq(zynq.pl2ps_irq[1]);
+		dma.irq(zynq.pl2ps_irq[1]);
 
 		/* Tie off any remaining unconnected signals.  */
 		zynq.tie_off();

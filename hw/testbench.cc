@@ -21,7 +21,7 @@ using namespace std;
 #include "iconnect.h"
 #include "debugdev.h"
 #include "swEmu.h"
-#include "vector_processor.h"
+#include "demo-dma.h"
 
 // how many initiators (masters) are on the bus iconnect
 #define NR_MASTERS 1
@@ -33,14 +33,14 @@ SC_MODULE(Top)
 	iconnect<NR_MASTERS, NR_DEVICES> bus;
 	debugdev debug;
 	SWEmu swEmu;
-	vector_processor vecProc;
+	demodma dma;
 	sc_signal<bool> irqDbg, irqVecProc;
 
 
 	Top(sc_module_name name, const char *sk_descr, sc_time quantum) : bus("bus"),
 																	  debug("debug"),
 																	  swEmu("swEmu"),
-																	  vecProc("vecProc")
+																	  dma("dma")
 	{
 		m_qk.set_global_quantum(quantum);
 
@@ -48,9 +48,9 @@ SC_MODULE(Top)
 		bus.memmap(0x48000000ULL, 0x100 - 1,
 				   ADDRMODE_RELATIVE, -1, debug.socket);
 
-		// map vecProc target (slave) device with base address 
-		bus.memmap(0x49000000ULL, 0x100 - 1,
-					ADDRMODE_RELATIVE, -1, vecProc.socket);
+		// map DMA target (slave) device with base address 
+		bus.memmap(0x48001000ULL, 0x100 - 1,
+					ADDRMODE_RELATIVE, -1, dma.tgt_socket);
 
 		// connect the swEmu as a target to the bus port 
 		swEmu.socket.bind(*(bus.t_sk[0]));
@@ -59,7 +59,7 @@ SC_MODULE(Top)
 		debug.irq(irqDbg);
 		swEmu.irq1(irqDbg);
 
-		vecProc.irq(irqVecProc);
+		dma.irq(irqVecProc);
 		swEmu.irq2(irqVecProc);
 	}
 
