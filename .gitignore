@@ -1,0 +1,45 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# user project settings vscode
+.vscode 
+
+# aux output files 
+*.vcd
+*.wav
+
+# avoid standard files that will be created during comp/sim
+sw/debugread
+sw/vector_testbench
+hw/zynq_demo
+hw/testbench
