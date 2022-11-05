@@ -55,7 +55,6 @@ SC_MODULE(Top)
 	debugdev debug;
 	demodma dma;
 	sc_signal<bool> rst;
-	//iconnect<1,1> ocmbus;
 
 	SC_HAS_PROCESS(Top);
 
@@ -71,7 +70,7 @@ SC_MODULE(Top)
 																	  zynq("zynq", sk_descr),
 																	  debug("debug"),
 																	  dma("dma"),
-																	  rst("rst") //,ocmbus("ocmbus")
+																	  rst("rst") 
 	{
 		m_qk.set_global_quantum(quantum); // quantum keeper 
 
@@ -89,19 +88,9 @@ SC_MODULE(Top)
 		// connect ZynqPS general AXI port as the initiator for all transactions on the internal bus
 		zynq.m_axi_gp[0]->bind(*(bus.t_sk[0]));
 
-		// connnecting the DMA's target port should go directly to the 
+		// connnecting the DMA's target port directly to the 
 		// s_axi_hp port. 
 		dma.init_socket.bind(*(zynq.s_axi_hp[0]));
-
-		// Could not get the above to compile, so I just use another 
-		// bus ocmbus as an intermediary. 
-		// connect the DMA as a target 1 to the ocm bus 
-		//dma.init_socket.bind(*(ocmbus.t_sk[0]));
-
-		// make custom interconnect as this port is not on the regular bus (coming from CPU)
-		/* access to OCM */
-		// this can access whole range from whin PS
-		//ocmbus.memmap(0x0LL, 0xFFFFFFFFULL - 1, ADDRMODE_RELATIVE, -1, *(zynq.s_axi_hp[0]));
 
 		/* Connect the PL irqs to the irq_pl_to_ps wires.  */
 		debug.irq(zynq.pl2ps_irq[0]);
