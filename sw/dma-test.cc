@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
 
 	cout << "call DMA to copy" << endl;
 	void *pSrc   = (void*) OCM_ADDR;
-	void *pDest  = (void*) (OCM_ADDR+N_WORDS+sizeof(uint32_t));
-	if (dma.memcpy_start(pDest,pSrc,N_WORDS+sizeof(uint32_t))) {
+	void *pDest  = (void*) (OCM_ADDR+(N_WORDS*sizeof(uint32_t)));
+	if (dma.memcpy_start(pDest,pSrc,N_WORDS*sizeof(uint32_t))) {
 		cout << "DMA not idle to start with" << endl; 
 		return 1;
 	}
