@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <iostream>
+using namespace std;
 
 class DemoDmaDrv {
 
@@ -68,14 +70,24 @@ public:
     /// @brief returns true if DMA is idle
     /// @return 
     bool isIdle() {
-        return pRegs->ctrl & DEMODMA_CTRL_DONE;
+        unsigned int regVal; 
+        regVal = pRegs->ctrl;
+        // if run bit is not set, then the DMA is not running
+        // done flag is actually for interrupts 
+        return !(regVal & DEMODMA_CTRL_RUN);
     }
 
     /// @brief  blocks until DMA is idle 
     void waitIdle(){
+        unsigned int timeout = 1000;
         while(1){
             if(isIdle()) {
                 return;
+            }
+            timeout--;
+            if(timeout <= 1) {
+                cout << "DMA timeout, never turned idle" << endl;
+                exit(1);
             }
             usleep(POLLING_INTERVAL);
         }
