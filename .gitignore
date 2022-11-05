@@ -39,7 +39,6 @@
 *.wav
 
 # avoid standard files that will be created during comp/sim
-sw/debugread
-sw/vector_testbench
+sw/dma-test
 hw/zynq_demo
 hw/testbench
