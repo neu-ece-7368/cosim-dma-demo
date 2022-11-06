@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "physmem.h"
 #include "demo-dma.h"
 #include <iostream>
 using namespace std;
@@ -19,49 +20,38 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	int fd;       /// file descriptor to phys mem
-	void *pDev;   /// pointer to OCM memory
-	unsigned page_size=sysconf(_SC_PAGESIZE);  /// get page size 
-
-	//open device file representing physical memory 
-	fd=open("/dev/mem",O_RDWR);
-	if(fd<1) {
-		perror(argv[0]);
-		exit(-1);
-	}
-
-	/// get a pointer in process' virtual memory that points to the physcial address of OCM
-	pDev=mmap(NULL,OCM_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,fd,(OCM_ADDR & ~(page_size-1)));
-	
-	/// instanciate driver 
+	// access to OCM via physical memory 
+	PhysMemDrv ocm(OCM_ADDR,OCM_SIZE);
+	// get pointer in data type we like
+	volatile uint32_t *data = (volatile uint32_t *) ocm.ptr;
+	// instanciate driver 
 	DemoDmaDrv dma;
 
-	cout << "copy data in" << endl;
-
+	cout << "Copy data in" << endl;
 	for(int i = 0; i < N_WORDS; i++) {
-		((volatile uint32_t*)pDev)[i] = i; // write in
+		data[i] = i; // write in
 	}
 
-	cout << "call DMA to copy" << endl;
-	void *pSrc   = (void*) OCM_ADDR;
-	void *pDest  = (void*) (OCM_ADDR+(N_WORDS*sizeof(uint32_t)));
-	if (dma.memcpy_start(pDest,pSrc,N_WORDS*sizeof(uint32_t))) {
-		cout << "DMA not idle to start with" << endl; 
+	cout << "Start DMA copy" << endl;
+	if (dma.memcpy_start(ocm.physAddr((void*) &data[N_WORDS]),
+					     ocm.physAddr((void*) &data[0]),
+						 N_WORDS*sizeof(uint32_t))) {
+		cout << "Failed to start DMA" << endl; 
 		return 1;
-	}
+	} 
 
+	cout << "Wait DMA done" << endl;
 	dma.waitIdle(); 
 
-	cout << "compare results" << endl;
+	cout << "Compare results" << endl;
 	for(int i = 0; i < N_WORDS; i++) {
-		uint32_t retVal = ((volatile uint32_t*)pDev)[i + N_WORDS];
+		uint32_t retVal = data[i + N_WORDS];
 		if (i != retVal) {
 			cout << "Fail at << " << i << "expect: " << i << " got: " << retVal << endl;
 			return 1;
 		}
 	}
 
-	cout << "all passed" << endl;
-		
+	cout << "Test Passed" << endl;
 	return 0; 
 }

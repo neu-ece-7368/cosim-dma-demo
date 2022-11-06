@@ -43,28 +43,10 @@ public:
     const unsigned int POLLING_INTERVAL = 500; 
 
     // constructor opens connection to MMRs
-    DemoDmaDrv() {
+    DemoDmaDrv():dev(SYSTEMC_DEVICE_ADDR, 0x100) {
 
-        // get pointer to device MMRs
-        
-        int fd;       /// file descriptor to phys mem
-        unsigned page_size=sysconf(_SC_PAGESIZE);  /// get page size 
-
-        //open device file representing physical memory 
-        fd=open("/dev/mem",O_RDWR);
-        if(fd<1) {
-            perror("failed");
-            exit(-1);
-        }
-
-        /// get a pointer in process' virtual memory that points to the physcial address of the device
-        //     request entire page as device's MMRs are smaller
-        pRegs= (tRegs *) mmap(NULL,page_size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,(SYSTEMC_DEVICE_ADDR & ~(page_size-1)));
-
-        if (pRegs == NULL ) {
-            perror("mmap faild"); 
-            exit(-1);
-        }
+        // get phys pointer from phys mem class        
+        pRegs= (tRegs *) dev.ptr;
     }
 
     /// @brief returns true if DMA is idle
@@ -130,6 +112,7 @@ public:
     }
 
 private:
+    PhysMemDrv dev;
 	tRegs *pRegs;   /// pointer to base address of device (mapped into user's virtual mem)
 };
 
