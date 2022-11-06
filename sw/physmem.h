@@ -74,7 +74,7 @@ public:
     /// @brief returns physical addess of virtual address paged to phyical 
     /// @param pIn   virtual address pointed to pys 
     /// @return      corresponding phys address
-    void* physAddr(void *pIn) {
+    void* phys(void *pIn) {
         // compute offset to the base (in virtual)
         unsigned int virtOffset = (off_t)  ((char*)pIn - (char*)ptr);
         // add the virtual computed offset to physAddress 

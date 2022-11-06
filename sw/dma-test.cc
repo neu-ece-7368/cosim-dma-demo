@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
 	}
 
 	cout << "Start DMA copy" << endl;
-	if (dma.memcpy_start(ocm.physAddr((void*) &data[N_WORDS]),
-					     ocm.physAddr((void*) &data[0]),
+	if (dma.memcpy_start(ocm.phys((void*) &data[N_WORDS]),
+					     ocm.phys((void*) &data[0]),
 						 N_WORDS*sizeof(uint32_t))) {
 		cout << "Failed to start DMA" << endl; 
 		return 1;
