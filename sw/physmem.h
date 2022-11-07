@@ -37,15 +37,15 @@ public:
         }
 
         // offset in /dev/mem needs to be page aligned
-        off_t physAddrPageAligned = physAddr & ~(page_size-1);
+        off_t physAddrPageAligned = physAddrIn & ~(page_size-1);
 
         // offset to lower page boundry in phys (is 0 if physAddr is page aligned)
         off_t physAddrPageOffset = 0; 
 
         // if physAddress was not page aligned, then compute offset 
         // to base of page that contains the physAddress 
-        if (physAddr != physAddrPageAligned) {
-            physAddrPageOffset = physAddr - physAddrPageAligned; 
+        if (physAddrIn != physAddrPageAligned) {
+            physAddrPageOffset = physAddrIn - physAddrPageAligned; 
         }
 
         // if phys address was not page aligned we need to increase the length so 
@@ -64,6 +64,10 @@ public:
             perror("mmap faild"); 
             exit(-1);
         }
+
+        // keep track of the user intended physical address (before page alignment)
+        // this is needed to get physcial address offset calcuation member function phys()
+        physAddr = physAddrIn; 
 
         // if physAddress was not page aligned, then virt ptr will have the same offset
         // adjust ptr to actually point to the user intended's physAddr.
