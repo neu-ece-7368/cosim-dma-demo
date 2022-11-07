@@ -65,7 +65,7 @@ TARGET_ZYNQ_DEMO = zynq_demo
 TARGET_TB        = testbench
 TARGETS = $(TARGET_ZYNQ_DEMO) $(TARGET_TB)
 
-all: $(TARGETS)
+all: $(TARGETS) demo.dtbo
 
 -include $(ZYNQ_OBJS:.o=.d) $(TB_OBJS:.o=.d)
 CFLAGS += -MMD
@@ -82,6 +82,9 @@ launch_cosim: $(TARGET_ZYNQ_DEMO)
 
 launch_cosim_debug: $(TARGET_ZYNQ_DEMO)
 	gdb --args ./$(TARGET_ZYNQ_DEMO) unix:$(COSIM_PATH)/qemu-rport-_cosim@0 $(COSIM_QUANTUM)
+
+demo.dtbo: demo.dts
+	dtc -O dtb -o $@ -b 0 -@ $<
 
 clean:
 	$(RM) $(OBJS) $(OBJS:.o=.d) $(TARGETS)
