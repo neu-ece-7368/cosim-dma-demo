@@ -53,6 +53,9 @@ int main(void) {
 }
 ```
 
+Note the `_read = read(fd, (void*)&ret, 4);` call. The read from the character device blocks until the next interrupt has occured. 
+Only reads of size 4 are supported (other sizes fail). 
+
 ### Using mmap on UIO and triggering interrupt in debug device
 See below for example code that triggers the interrupt for testing in the debug device
 
