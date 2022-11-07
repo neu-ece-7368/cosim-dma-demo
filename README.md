@@ -53,7 +53,7 @@ int main(void) {
 }
 ```
 
-Note the `_read = read(fd, (void*)&ret, 4);` call. The read from the character device blocks until the next interrupt has occured. 
+Note the `_read = read(fd, (void*)&ret, 4);` call. The read from the character device blocks until the next interrupt has occured. The value read is the number of interrupts occured (since startup or last read?). 
 Only reads of size 4 are supported (other sizes fail). 
 
 ### Using mmap on UIO and triggering interrupt in debug device
