@@ -52,7 +52,10 @@ public:
     /// @brief returns true if DMA is idle
     /// @return 
     bool isIdle() {
-        unsigned int regVal; 
+        // volatile needed: indicating to the compiler that the value 
+        // is not compile-time determinable, i.e. that there is someone
+        // else who might write it (HW!), hence read cannot be optimized away. 
+        volatile unsigned int regVal; 
         regVal = pRegs->ctrl;
         // if run bit is not set, then the DMA is not running
         // done flag is actually for interrupts 

@@ -1,4 +1,4 @@
-CFLAGS+=-g
+CFLAGS+=-g 
 TARGET=dma-test
 SOURCE=dma-test.cc
 OBJS=$(SOURCE:.cc=.o)
