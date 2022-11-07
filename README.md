@@ -55,6 +55,7 @@ int main(void) {
 
 Note the `_read = read(fd, (void*)&ret, 4);` call. The read from the character device blocks until the next interrupt has occured. The value read is the number of interrupts occured (since startup or last read?). 
 Only reads of size 4 are supported (other sizes fail). 
+To complete interrupt handling, the user is responsible to inform the interrupt source (ie. debug device or DMA) that the interrupt is handled. Depending on device implementation, the user needs to clear the interrrupt via MMR write at the source. 
 
 ### Using mmap on UIO and triggering interrupt in debug device
 See below for example code that triggers the interrupt for testing in the debug device
@@ -85,6 +86,9 @@ int main(void) {
   return 0;
 }
 ```
+
+
+
 
 ### Zynq PS-PL interrupts
 
