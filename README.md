@@ -7,7 +7,9 @@ the demo (courtesy of Xilinx's [Xilinx CoSimulation Demo](https://github.com/Xil
 
 To use interrupts in user mode, we need to configure the device using [UIO](https://www.kernel.org/doc/html/latest/driver-api/uio-howto.html).
 
-We will use a device tree overlay to configure UIO after boot. The source of the device tree fragments for this ddemo is located at [hw/demo.dts](hw/demo.dts). Compile the device tree overlay blob by running make in the hw folder (or make demo.dtbo).
+We will use a device tree overlay to configure UIO after boot. The source of the device tree fragments for this ddemo is located at [hw/demo.dts](hw/demo.dts). 
+It defines the interrupts for the demodma as `interrupts = <0 30 4>;` meaning the first (and only) interrupt group, line 30 at rising edge. 
+Compile the device tree overlay blob by running make in the hw folder (or make demo.dtbo).
 
 To enable the device tree overlay:
 
