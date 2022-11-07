@@ -1,6 +1,7 @@
 CFLAGS+=-g
 TARGET=dma-test
 SOURCE=dma-test.cc
+OBJS=$(SOURCE:.cc=.o)
 DEBUG_PORT?=10024
 QEMU_HOSTNAME?=qemu
 QEMU_DEBUG_PORT_FILE:=$(HOME)/.qemu-dbg-port
@@ -18,6 +19,11 @@ $(TARGET): $(SOURCE)
 
 all: $(TARGET)
 
+# automatic dependency tracking 
+-include $(OBJS:.o=.d) 
+CFLAGS += -MMD
+CXXFLAGS += -MMD
+
 upload: $(TARGET)
 	scp $^ $(QEMU_HOSTNAME):/home/root
 
@@ -27,6 +33,6 @@ debug: upload
 	ssh $(QEMU_HOSTNAME) "gdbserver localhost:10024 /home/root/$(TARGET)"
 	
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf $(OBJS:.o=.d) $(OBJS) $(TARGET) 
 
 .PHONY: clean upload run kill
