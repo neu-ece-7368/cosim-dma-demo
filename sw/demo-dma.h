@@ -116,7 +116,7 @@ public:
 
 private:
     PhysMemDrv dev;
-	tRegs *pRegs;   /// pointer to base address of device (mapped into user's virtual mem)
+	volatile tRegs *pRegs;   /// pointer to base address of device (mapped into user's virtual mem)
 };
 
 #endif
