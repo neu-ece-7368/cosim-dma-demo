@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
 	// instanciate driver 
 	DemoDmaDrv dma;
 
+	// set everything to 0
+	memset((void*)data, 0, OCM_SIZE);
+
 	cout << "Copy data in" << endl;
 	for(int i = 0; i < N_WORDS; i++) {
 		data[i] = i; // write in
