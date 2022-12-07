@@ -7,7 +7,9 @@ the demo (courtesy of Xilinx's [Xilinx CoSimulation Demo](https://github.com/Xil
 
 To use interrupts in user mode, we need to configure the device using [UIO](https://www.kernel.org/doc/html/latest/driver-api/uio-howto.html).
 
-We will use a device tree overlay to configure UIO after boot. The source of the device tree fragments for this ddemo is located at [hw/demo.dts](hw/demo.dts). Compile the device tree overlay blob by running make in the hw folder (or make demo.dtbo).
+We will use a device tree overlay to configure UIO after boot. The source of the device tree fragments for this ddemo is located at [hw/demo.dts](hw/demo.dts). 
+It defines the interrupts for the demodma as `interrupts = <0 30 4>;` meaning the first (and only) interrupt group of the interrupt controller intc, at line 30 with rising edge sensitivity.
+Compile the device tree overlay blob by running make in the hw folder (or make demo.dtbo).
 
 To enable the device tree overlay:
 
@@ -51,7 +53,12 @@ int main(void) {
 }
 ```
 
+Note the `_read = read(fd, (void*)&ret, 4);` call. The read from the character device blocks until the next interrupt has occured. Only reads of size 4 are supported (other sizes fail). The value read is the number of interrupts occured since the UIO driver was loaded. You can use this number to figure out if you missed some interrupts.
+
+To complete interrupt handling, the user is responsible to inform the interrupt source (ie. debug device or DMA) that SW has handled the interrupt. Depending on device implementation, the user needs to clear the interrrupt via MMR write at the source. 
+
 ### Using mmap on UIO and triggering interrupt in debug device
+
 See below for example code that triggers the interrupt for testing in the debug device
 
 ```c
@@ -80,6 +87,9 @@ int main(void) {
   return 0;
 }
 ```
+
+
+
 
 ### Zynq PS-PL interrupts
 
