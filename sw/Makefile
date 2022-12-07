@@ -36,3 +36,7 @@ clean:
 	rm -rf $(OBJS:.o=.d) $(OBJS) $(TARGET) 
 
 .PHONY: clean upload run kill
+
+# compile device tree overlay for loading 
+demo.dtbo: demo.dts
+	dtc -O dtb -o $@ -b 0 -@ $<
