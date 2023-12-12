@@ -90,7 +90,8 @@ void demodma::update_irqs(void)
 
 void demodma::do_dma_copy(void)
 {
-	unsigned char buf[32];
+	// assume max burst is 1K = 128 beats of 64-bit 
+	unsigned char buf[1024];
 
 	while (true) {
 		if (!(regs.ctrl & DEMODMA_CTRL_RUN)) {
